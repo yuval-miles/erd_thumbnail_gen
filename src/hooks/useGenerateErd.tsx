@@ -1,23 +1,35 @@
 import { useEdgesState, useNodesState, Node } from "reactflow";
 import { useCallback } from "react";
-import { Erd } from "./interfaces";
+import { Erd, TablesGenerated, TablesSaved } from "./interfaces";
 
 export const useGenerateErd = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const nodesArr: Node[] = [];
   const genErd = useCallback((data: Erd) => {
-    if (data?.layout)
+    const nodes: Node[] = [];
+    if (isGeneratedTable(data.tables) && data.layout) {
       for (const table of data.layout) {
-        if (table.x && table.y)
-          nodesArr.push({
-            id: table.id,
-            position: { x: table.x, y: table.y },
-            type: "tableNode",
-            data: { columns: data.tables[table.id], tableName: table.id },
-          });
+        nodes.push({
+          id: table.id,
+          position: { x: table.x, y: table.y },
+          type: "tableNode",
+          data: {
+            columns: data.tables[table.id],
+            tableName: table.id,
+          },
+        });
       }
-    setNodes(nodesArr);
+    } else if (isSavedTable(data.tables)) {
+      for (const table of data.tables) {
+        nodes.push({
+          id: table.name,
+          position: { x: table.x, y: table.y },
+          type: "tableNode",
+          data: { columns: table.columns, tableName: table.name },
+        });
+      }
+    }
+    setNodes(nodes);
     setEdges(data.edges);
   }, []);
   return {
@@ -27,4 +39,16 @@ export const useGenerateErd = () => {
     onEdgesChange,
     onNodesChange,
   };
+};
+
+const isGeneratedTable = (
+  tables: TablesGenerated | TablesSaved
+): tables is TablesGenerated => {
+  return true;
+};
+
+const isSavedTable = (
+  tables: TablesGenerated | TablesSaved
+): tables is TablesSaved => {
+  return true;
 };

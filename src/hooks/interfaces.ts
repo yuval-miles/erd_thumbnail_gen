@@ -9,6 +9,18 @@ export interface Row {
   isForeignKey: string;
 }
 
+export interface TablesGenerated {
+  [key: string]: Row[];
+}
+
+export type TablesSaved = {
+  height: number;
+  name: string;
+  x: number;
+  y: number;
+  columns: Row[];
+}[];
+
 export interface Tables {
   [key: string]: Row[];
 }
